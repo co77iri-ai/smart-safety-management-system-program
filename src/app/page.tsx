@@ -1,103 +1,60 @@
-import Image from "next/image";
+import { BaseLayout, IconButton } from "@/components";
+import {
+  IconChartBar,
+  IconFileDescription,
+  IconMapPin,
+} from "@tabler/icons-react";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <BaseLayout mainContainerClassName="flex justify-center items-center flex-col">
+      <div className="flex flex-col justify-center items-center gap-[4px] flex-1 min-h-[180px]">
+        <h1 className="text-[32px] leading-[32px] font-black text-[#2D2551]">
+          유지 관리 작업장
+        </h1>
+        <h2 className="text-[18px] leading-[18px] text-[#2D2551]">
+          스마트 안전관리체계 프로그램
+        </h2>
+      </div>
+      <div className="w-full flex flex-col justify-center items-center gap-[16px]">
+        <div className="w-full flex justify-between items-stretch gap-[16px] h-[181px] px-[24px]">
+          <IconButton
+            href="/create-contract"
+            title="계약 생성"
+            description={"신규 사업 계약을\n생성합니다"}
+            Icon={IconFileDescription}
+            iconColor="#4060E4"
+            iconBgColor="#DFEAFD"
+          />
+          <IconButton
+            href="/contract"
+            title="사업 현황"
+            description={"진행 중인 사업 현황을\n확인합니다."}
+            Icon={IconChartBar}
+            iconColor="#4AA153"
+            iconBgColor="#E2FBE9"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="w-full flex justify-between items-stretch gap-[16px] h-[181px] px-[24px]">
+          <IconButton
+            href="/safe-map"
+            title="안전 지도"
+            description={"작업장 위치와\n안전 정보를 봅니다"}
+            Icon={IconMapPin}
+            iconColor="#C08E2C"
+            iconBgColor="#FCFAC8"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <IconButton
+            href="/risk-assessment-helper"
+            title="위험성 평가 도우미"
+            description={"작업의 위험성을 평가하고\n분석합니다."}
+            Icon={IconChartBar}
+            iconColor="#CA3D2F"
+            iconBgColor="#F9E3E3"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </div>
+      </div>
+      <div className="flex-1" />
+    </BaseLayout>
   );
 }
