@@ -16,7 +16,7 @@ export function QrDownloadButton({
   const hiddenContainerRef = useRef<HTMLDivElement | null>(null);
 
   const qrUrl = useMemo(
-    () => `http://localhost:3000/contract/${contractId}`,
+    () => `${process.env.NEXT_PUBLIC_HOSTNAME}/contract/${contractId}`,
     [contractId]
   );
 

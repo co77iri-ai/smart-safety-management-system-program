@@ -2,7 +2,7 @@
 
 import { BaseLayout, MapLayout } from "@/components";
 import { Contract, MapSpot, Site } from "@/models";
-import { computeSitesCenter, LatLng } from "@/utils";
+import { computeSitesCenter, computeSpotsCenter, LatLng } from "@/utils";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
@@ -41,6 +41,14 @@ export const SafeMapScreen = ({ contracts, sites }: SafeMapScreenProps) => {
     [contracts, sites]
   );
 
+  const mapCenterPosition = useMemo<LatLng>(
+    () =>
+      computeSpotsCenter(
+        groupedContractSites.map((contract) => contract.centerPosition)
+      ),
+    [groupedContractSites]
+  );
+
   const mapSpots = useMemo<MapSpot[]>(
     () =>
       groupedContractSites.map(({ contract, siteCounts, centerPosition }) => ({
@@ -64,6 +72,7 @@ export const SafeMapScreen = ({ contracts, sites }: SafeMapScreenProps) => {
           router.push(`/contract/${contractId}`);
         }}
         goBackHref="/"
+        initialCenter={mapCenterPosition}
       ></MapLayout>
     </BaseLayout>
   );

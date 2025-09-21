@@ -6,10 +6,9 @@ import {
 
 import "./globals.css";
 import "@mantine/core/styles.css";
-import "@mantine/nprogress/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
-import { ToastContainer } from "@/components";
+import { ProgressProvider, ToastContainer } from "@/components";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -37,7 +36,9 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body className="antialiased">
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+          <ProgressProvider>{children}</ProgressProvider>
+        </MantineProvider>
         <ToastContainer />
       </body>
     </html>

@@ -17,6 +17,7 @@
     "prisma:push": "prisma db push"
   },
   "dependencies": {
+    "@bprogress/next": "^3.2.12",
     "@mantine/core": "^8.2.8",
     "@mantine/dates": "^8.2.8",
     "@mantine/hooks": "^8.2.8",

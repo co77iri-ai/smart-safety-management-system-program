@@ -22,7 +22,7 @@ export default function CreateContract() {
 
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  const createdContractURL = `http://localhost:3000/contract/${createdContract?.id}`;
+  const createdContractURL = `${process.env.NEXT_PUBLIC_HOSTNAME}/contract/${createdContract?.id}`;
 
   const isVaildFormData =
     title.trim() !== "" &&
