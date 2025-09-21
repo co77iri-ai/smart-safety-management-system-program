@@ -59,22 +59,26 @@ export const ContractDetailScreen = ({
 
   const isShowDimmer = !!selectedSiteId || isOpenAddSiteDrawer;
 
-  const handleCreateSite = (siteBody: Omit<Site, "id">) => {
+  const handleCreateSite = (siteBody: Omit<Site, "id">, onDone: () => void) => {
     const fetching = async () => {
-      const result = await fetch("/api/site", {
-        method: "POST",
-        body: JSON.stringify(siteBody),
-      })
-        .then((res) => res.json())
-        .catch((err) => {
-          throw err;
+      try {
+        const result = await fetch("/api/site", {
+          method: "POST",
+          body: JSON.stringify(siteBody),
+        })
+          .then((res) => res.json())
+          .catch((err) => {
+            throw err;
+          });
+        const nextSites: Site[] = Array.isArray(result) ? result : [result];
+        setSites((prev) => [...prev, ...nextSites]);
+        setCenterSpot({
+          lat: nextSites[0].latitude,
+          lng: nextSites[0].longitude,
         });
-      const nextSites: Site[] = Array.isArray(result) ? result : [result];
-      setSites((prev) => [...prev, ...nextSites]);
-      setCenterSpot({
-        lat: nextSites[0].latitude,
-        lng: nextSites[0].longitude,
-      });
+      } finally {
+        onDone();
+      }
     };
 
     toast.promise(fetching(), {

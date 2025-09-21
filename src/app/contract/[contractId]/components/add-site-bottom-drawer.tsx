@@ -14,7 +14,7 @@ export type AddSiteBottomDrawerProps = {
   contractId: number;
   isOpen?: boolean;
   onClose?: () => void;
-  onSubmit?: (siteBody: Omit<Site, "id">) => void;
+  onSubmit?: (siteBody: Omit<Site, "id">, onDone: () => void) => void;
 };
 
 export const AddSiteBottomDrawer = ({
@@ -29,6 +29,7 @@ export const AddSiteBottomDrawer = ({
   const [address, setAddress] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [isFetching, setIsFetching] = useState(false);
 
   const isVaildFormData =
     title.trim() !== "" &&
@@ -42,6 +43,7 @@ export const AddSiteBottomDrawer = ({
     setAddress("");
     setStartDate(undefined);
     setEndDate(undefined);
+    setIsFetching(false);
   };
 
   const handleClose = () => {
@@ -50,39 +52,46 @@ export const AddSiteBottomDrawer = ({
   };
 
   const handleSubmit = async () => {
-    if (!isVaildFormData || !onSubmit) return;
-    // NCP Geocoding: 주소 -> 좌표
-    let lat = 0;
-    let lng = 0;
+    if (!isVaildFormData || isFetching || !onSubmit) return;
+    setIsFetching(true);
     try {
-      const res = await fetch(
-        `/api/naver/geocode?query=${encodeURIComponent(address)}`
-      );
-      const data = await res.json();
-      const item = data?.addresses?.[0];
-      if (item) {
-        lat = Number(item.y);
-        lng = Number(item.x);
-      }
-    } catch {}
-    const body: Omit<Site, "id"> = {
-      name: title,
-      address,
-      contractId,
-      latitude: lat,
-      longitude: lng,
-      startDate: dayjs(startDate).format("YYYYMMDD"),
-      endDate: dayjs(endDate).format("YYYYMMDD"),
-      checklist: [
-        "TBM일지",
-        "안전작업허가",
-        "작업계획서",
-        "특별교육",
-        "건설기계 체크리스트",
-      ],
-    };
-    onSubmit(body);
-    handleClose();
+      // NCP Geocoding: 주소 -> 좌표
+      let lat = 0;
+      let lng = 0;
+      try {
+        const res = await fetch(
+          `/api/naver/geocode?query=${encodeURIComponent(address)}`
+        );
+        const data = await res.json();
+        const item = data?.addresses?.[0];
+        if (item) {
+          lat = Number(item.y);
+          lng = Number(item.x);
+        }
+      } catch {}
+      const body: Omit<Site, "id"> = {
+        name: title,
+        address,
+        contractId,
+        latitude: lat,
+        longitude: lng,
+        startDate: dayjs(startDate).format("YYYYMMDD"),
+        endDate: dayjs(endDate).format("YYYYMMDD"),
+        checklist: [
+          "TBM일지",
+          "안전작업허가",
+          "작업계획서",
+          "특별교육",
+          "건설기계 체크리스트",
+        ],
+      };
+      onSubmit(body, () => {
+        setIsFetching(false);
+      });
+      handleClose();
+    } catch {
+      setIsFetching(false);
+    }
   };
 
   return (
@@ -196,7 +205,7 @@ export const AddSiteBottomDrawer = ({
               radius="lg"
               px="xs"
               onClick={handleSubmit}
-              disabled={!isVaildFormData}
+              disabled={!isVaildFormData || isFetching}
             >
               등록하기
             </Button>
