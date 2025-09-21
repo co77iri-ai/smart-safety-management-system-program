@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Contract {
+  id         Int      @id @default(autoincrement())
+  name       String
+  startDate  String   @db.Char(8) // YYYYMMDD
+  endDate    String   @db.Char(8) // YYYYMMDD
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  @@map("contract")
+}
+
+model Site {
+  id         Int      @id @default(autoincrement())
+  contractId Int
+  name       String
+  address    String
+  latitude   Decimal  @db.Decimal(10, 7)
+  longitude  Decimal  @db.Decimal(10, 7)
+  checklist  Json
+  startDate  String   @db.Char(8)
+  endDate    String   @db.Char(8)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  @@map("site")
+}
+
+model Checklist {
+  id         Int      @id @default(autoincrement())
+  contractId Int
+  siteId     Int
+  name       String
+  createdAt  DateTime @default(now())
+  deletedAt  DateTime?
+
+  @@map("checklist")
+}

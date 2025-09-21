@@ -1,4 +1,4 @@
-import type { MapSpot } from "@/models";
+import type { MapSpot, Site } from "@/models";
 
 export type LatLng = { lat: number; lng: number };
 
@@ -12,9 +12,27 @@ export function computeSpotsCenter(
 
   let sumLat = 0;
   let sumLng = 0;
+
   for (const spot of spots) {
     sumLat += spot.lat;
     sumLng += spot.lng;
   }
   return { lat: sumLat / spots.length, lng: sumLng / spots.length };
+}
+
+export function computeSitesCenter(
+  sites: Array<Pick<Site, "latitude" | "longitude">>
+): LatLng {
+  if (!sites || sites.length === 0) {
+    return { lat: 35.260773, lng: 126.886545 };
+  }
+
+  let sumLat = 0;
+  let sumLng = 0;
+
+  for (const site of sites) {
+    sumLat += site.latitude;
+    sumLng += site.longitude;
+  }
+  return { lat: sumLat / sites.length, lng: sumLng / sites.length };
 }

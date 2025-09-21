@@ -1,88 +1,29 @@
-"use client";
+import {
+  convertToMapSpotFromSite,
+  getContractById,
+  getSitesByContractId,
+} from "@/models";
+import { ContractDetailScreen } from "./components/contract-detail-screen";
+import { notFound } from "next/navigation";
 
-import { BaseLayout, BottomDrawer, MapLayout } from "@/components";
-import { dummyContracts, dummyMapSpots } from "@/constants";
-import { computeSpotsCenter } from "@/utils";
-import { use, useMemo, useState } from "react";
-import { AddSpotBottomDrawer, SpotDetailInfoBottomDrawer } from "./components";
+export const dynamic = "force-dynamic";
 
-export default function ContractDetail({
+export default async function ContractDetail({
   params,
 }: {
   params: Promise<{ contractId: string }>;
 }) {
-  const { contractId } = use(params);
-  const [selectedSpotId, setSelectedSpotId] = useState<string>();
-  const [isOpenAddSpotDrawer, setIsOpenAddSpotDrawer] = useState(false);
+  const { contractId: _contractId } = await params;
+  const contractId = Number.isNaN(Number(_contractId))
+    ? 0
+    : Number(_contractId);
 
-  const contractIdMap = useMemo(
-    () =>
-      Object.fromEntries(
-        dummyContracts.map((contract) => [contract.id, contract])
-      ),
-    []
-  );
+  const contract = await getContractById(contractId);
+  const sites = await getSitesByContractId(contractId);
 
-  const targetContract = useMemo(
-    () => contractIdMap[contractId],
-    [contractIdMap, contractId]
-  );
+  if (!contract) {
+    notFound();
+  }
 
-  const centerSpot = useMemo(
-    () => computeSpotsCenter(dummyMapSpots[contractId]),
-    [contractId]
-  );
-
-  const targetContractSpots = useMemo(
-    () => dummyMapSpots[targetContract.id],
-    [targetContract.id]
-  );
-  const targetContractSpotIdMap = useMemo(
-    () =>
-      Object.fromEntries(targetContractSpots.map((spot) => [spot.id, spot])),
-    [targetContractSpots]
-  );
-  const targetSpot = useMemo(
-    () =>
-      selectedSpotId ? targetContractSpotIdMap[selectedSpotId] : undefined,
-    [targetContractSpotIdMap, selectedSpotId]
-  );
-
-  const isShowDimmer = !!selectedSpotId || isOpenAddSpotDrawer;
-
-  return (
-    <BaseLayout>
-      <MapLayout
-        title={targetContract.title}
-        spots={dummyMapSpots[contractId]}
-        selectedSpotId={selectedSpotId}
-        onMarkerClick={(spot) => {
-          setSelectedSpotId(spot.id);
-        }}
-        isShowDimmer={isShowDimmer}
-        onClickDimmer={() => {
-          setSelectedSpotId(undefined);
-          setIsOpenAddSpotDrawer(false);
-        }}
-        selectable
-        initialCenter={centerSpot}
-        isShowAddButton
-        onClickAdd={() => setIsOpenAddSpotDrawer(true)}
-        goBackHref="/contract"
-      >
-        <SpotDetailInfoBottomDrawer
-          spot={targetSpot}
-          onClose={() => setSelectedSpotId(undefined)}
-        />
-        <AddSpotBottomDrawer
-          isOpen={isOpenAddSpotDrawer}
-          contractId={targetContract.id}
-          onClose={() => setIsOpenAddSpotDrawer(false)}
-          onSubmit={(spot) => {
-            console.log("test", spot);
-          }}
-        />
-      </MapLayout>
-    </BaseLayout>
-  );
+  return <ContractDetailScreen contract={contract} sites={sites} />;
 }

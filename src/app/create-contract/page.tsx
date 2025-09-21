@@ -6,20 +6,23 @@ import { Button, Input } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarEvent, IconCheck } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import QRCode from "react-qr-code";
-import { Contract } from "@/models";
+import type { Contract } from "@/models";
 
 export default function CreateContract() {
+  const [isFetching, setIsFetching] = useState(false);
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
   const [createdContract, setCreatedContract] = useState<Contract>();
 
-  const createdContractURL = `https://localhost:3000/contract/${createdContract?.id}`;
+  const qrContainerRef = useRef<HTMLDivElement>(null);
+
+  const createdContractURL = `http://localhost:3000/contract/${createdContract?.id}`;
 
   const isVaildFormData =
     title.trim() !== "" &&
@@ -28,14 +31,101 @@ export default function CreateContract() {
     dayjs(endDate).diff(startDate, "date") >= 0;
 
   const handleSubmit = async () => {
-    if (!isVaildFormData) return;
-    toast.success("계약이 생성되었습니다.");
-    setCreatedContract({
-      id: "12312412412",
-      title: title,
-      startDate: dayjs(startDate).format("YYYY-MM-DD"),
-      endDate: dayjs(endDate).format("YYYY-MM-DD"),
+    if (!isVaildFormData || isFetching) return;
+    const fetching = async () => {
+      const result = await fetch("/api/contract", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          startDate: dayjs(startDate).format("YYYY-MM-DD"),
+          endDate: dayjs(endDate).format("YYYY-MM-DD"),
+        } satisfies Omit<Contract, "id">),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .catch((error) => {
+          throw error;
+        });
+      setCreatedContract(result);
+    };
+
+    setIsFetching(true);
+    toast.promise(fetching(), {
+      loading: "신규 계약을 생성 중입니다...",
+      success: "계약이 생성되었습니다!",
+      error: "계약 생성을 실패했습니다.",
     });
+    setIsFetching(false);
+  };
+
+  const handleDownloadQr = async () => {
+    try {
+      const container = qrContainerRef.current;
+      if (!container) return;
+      const svg = container.querySelector("svg");
+      if (!svg) return;
+
+      const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
+      if (!clonedSvg.getAttribute("xmlns")) {
+        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      }
+
+      const widthAttr = clonedSvg.getAttribute("width");
+      const heightAttr = clonedSvg.getAttribute("height");
+      const width = widthAttr ? parseInt(widthAttr, 10) : 223;
+      const height = heightAttr ? parseInt(heightAttr, 10) : 223;
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(clonedSvg);
+      const blob = new Blob([svgString], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(blob);
+
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(image, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+
+        const pngUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = pngUrl;
+        link.download = `contract-qr-${createdContract?.id ?? "unknown"}.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      };
+      image.src = url;
+    } catch {
+      toast.error("QR 코드 저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(createdContractURL);
+      toast.success("URL이 복사되었습니다.");
+    } catch {
+      try {
+        const input = document.createElement("input");
+        input.value = createdContractURL;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+        toast.success("URL이 복사되었습니다.");
+      } catch {
+        toast.error("URL 복사에 실패했습니다.");
+      }
+    }
   };
 
   return (
@@ -58,7 +148,7 @@ export default function CreateContract() {
               </div>
             </div>
             <div className="w-full bg-white border border-[#DBDAE4] rounded-2xl p-[16px] mt-[24px] flex flex-col justify-center items-center gap-[16px]">
-              <div className="p-[16px]">
+              <div className="p-[16px]" ref={qrContainerRef}>
                 <QRCode size={223} value={createdContractURL} />
               </div>
               <Button
@@ -68,6 +158,7 @@ export default function CreateContract() {
                 color="dark"
                 w="100%"
                 radius="lg"
+                onClick={handleDownloadQr}
               >
                 갤러리에 저장
               </Button>
@@ -83,6 +174,7 @@ export default function CreateContract() {
                 color="dark"
                 radius="lg"
                 miw={70}
+                onClick={handleCopyUrl}
               >
                 URL 링크 복사
               </Button>
@@ -98,6 +190,7 @@ export default function CreateContract() {
                 mt="xs"
                 value={title}
                 onChange={(e) => setTitle(e.currentTarget.value)}
+                disabled={isFetching}
               />
             </Input.Wrapper>
             <Input.Wrapper label="계약 시작일" required size="lg">
@@ -119,6 +212,7 @@ export default function CreateContract() {
                 maxDate={endDate}
                 value={startDate}
                 onChange={(date) => setStartDate(dayjs(date).toDate())}
+                disabled={isFetching}
               />
             </Input.Wrapper>
             <Input.Wrapper label="계약 종료일" required size="lg">
@@ -139,6 +233,7 @@ export default function CreateContract() {
                 minDate={startDate || dayjs().toDate()}
                 value={endDate}
                 onChange={(date) => setEndDate(dayjs(date).toDate())}
+                disabled={isFetching}
               />
             </Input.Wrapper>
           </>
@@ -178,7 +273,7 @@ export default function CreateContract() {
             color="indigo"
             w="100%"
             radius="lg"
-            disabled={!isVaildFormData}
+            disabled={!isVaildFormData || isFetching}
             onClick={handleSubmit}
           >
             계약 생성

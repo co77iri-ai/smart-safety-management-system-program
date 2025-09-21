@@ -1,27 +1,28 @@
+"use client";
+
 import "dayjs/locale/ko";
 import { BottomDrawer } from "@/components";
-import type { MapSpot } from "@/models";
+import type { Site } from "@/models";
 import { Button, Input, Modal } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { IconCalendarEvent } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import DaumPostcodeEmbed from "react-daum-postcode";
-import toast from "react-hot-toast";
 
-export type AddSpotBottomDrawerProps = {
-  contractId: string;
+export type AddSiteBottomDrawerProps = {
+  contractId: number;
   isOpen?: boolean;
   onClose?: () => void;
-  onSubmit?: (spot: MapSpot) => void;
+  onSubmit?: (siteBody: Omit<Site, "id">) => void;
 };
 
-export const AddSpotBottomDrawer = ({
+export const AddSiteBottomDrawer = ({
   contractId,
   isOpen,
   onClose,
   onSubmit,
-}: AddSpotBottomDrawerProps) => {
+}: AddSiteBottomDrawerProps) => {
   const [isOpenSearchAddress, setIsOpenSearchAddress] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -35,6 +36,18 @@ export const AddSpotBottomDrawer = ({
     startDate &&
     endDate &&
     dayjs(endDate).diff(startDate, "date") >= 0;
+
+  const reset = () => {
+    setTitle("");
+    setAddress("");
+    setStartDate(undefined);
+    setEndDate(undefined);
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose?.();
+  };
 
   const handleSubmit = async () => {
     if (!isVaildFormData || !onSubmit) return;
@@ -52,17 +65,24 @@ export const AddSpotBottomDrawer = ({
         lng = Number(item.x);
       }
     } catch {}
-    const spot: MapSpot = {
-      id: "id",
+    const body: Omit<Site, "id"> = {
       name: title,
       address,
       contractId,
-      lat,
-      lng,
+      latitude: lat,
+      longitude: lng,
+      startDate: dayjs(startDate).format("YYYYMMDD"),
+      endDate: dayjs(endDate).format("YYYYMMDD"),
+      checklist: [
+        "TBM일지",
+        "안전작업허가",
+        "작업계획서",
+        "특별교육",
+        "건설기계 체크리스트",
+      ],
     };
-    onSubmit(spot);
-    toast.success("신규 작업장이 등록되었습니다.");
-    onClose?.();
+    onSubmit(body);
+    handleClose();
   };
 
   return (
@@ -107,47 +127,51 @@ export const AddSpotBottomDrawer = ({
               </Button>
             </div>
           </Input.Wrapper>
-          <Input.Wrapper label="시작일" required size="lg">
-            <DateInput
-              leftSection={
-                <IconCalendarEvent
-                  size={28}
-                  color="#868E96"
-                  strokeWidth={1.5}
-                />
-              }
-              placeholder="연도. 월. 일"
-              valueFormat="YYYY. MM. DD"
-              size="lg"
-              radius="lg"
-              mt="xs"
-              locale="ko"
-              minDate={dayjs().toDate()}
-              maxDate={endDate}
-              value={startDate}
-              onChange={(date) => setStartDate(dayjs(date).toDate())}
-            />
-          </Input.Wrapper>
-          <Input.Wrapper label="종료일" required size="lg">
-            <DateInput
-              leftSection={
-                <IconCalendarEvent
-                  size={28}
-                  color="#868E96"
-                  strokeWidth={1.5}
-                />
-              }
-              placeholder="연도. 월. 일"
-              valueFormat="YYYY. MM. DD"
-              size="lg"
-              radius="lg"
-              mt="xs"
-              locale="ko"
-              minDate={startDate || dayjs().toDate()}
-              value={endDate}
-              onChange={(date) => setEndDate(dayjs(date).toDate())}
-            />
-          </Input.Wrapper>
+          {isOpen && (
+            <Input.Wrapper label="시작일" required size="lg">
+              <DateInput
+                leftSection={
+                  <IconCalendarEvent
+                    size={28}
+                    color="#868E96"
+                    strokeWidth={1.5}
+                  />
+                }
+                placeholder="연도. 월. 일"
+                valueFormat="YYYY. MM. DD"
+                size="lg"
+                radius="lg"
+                mt="xs"
+                locale="ko"
+                minDate={dayjs().toDate()}
+                maxDate={endDate}
+                value={startDate}
+                onChange={(date) => setStartDate(dayjs(date).toDate())}
+              />
+            </Input.Wrapper>
+          )}
+          {isOpen && (
+            <Input.Wrapper label="종료일" required size="lg">
+              <DateInput
+                leftSection={
+                  <IconCalendarEvent
+                    size={28}
+                    color="#868E96"
+                    strokeWidth={1.5}
+                  />
+                }
+                placeholder="연도. 월. 일"
+                valueFormat="YYYY. MM. DD"
+                size="lg"
+                radius="lg"
+                mt="xs"
+                locale="ko"
+                minDate={startDate || dayjs().toDate()}
+                value={endDate}
+                onChange={(date) => setEndDate(dayjs(date).toDate())}
+              />
+            </Input.Wrapper>
+          )}
         </div>
         <div className="w-full flex justify-between items-center gap-[10px]">
           <div className="flex-1">
@@ -158,7 +182,7 @@ export const AddSpotBottomDrawer = ({
               color="dark"
               w="100%"
               radius="lg"
-              onClick={onClose}
+              onClick={handleClose}
             >
               닫기
             </Button>

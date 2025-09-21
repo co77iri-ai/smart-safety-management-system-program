@@ -4,13 +4,13 @@ import type { MapSpot } from "@/models";
 import { cn } from "@/utils";
 import { IconChevronLeft, IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type MapLayoutProps = {
   title: string;
   spots?: MapSpot[];
-  selectedSpotId?: string;
+  selectedSpotId?: number;
   onMarkerClick?: (spot: MapSpot) => void;
   onClickDimmer?: () => void;
   isShowAddButton?: boolean;
@@ -42,10 +42,9 @@ export const MapLayout = ({
   onClickGoBack,
 }: MapLayoutProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
   const onMarkerClickRef = useRef<MapLayoutProps["onMarkerClick"] | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
-  const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+  const markersRef = useRef<Map<number, naver.maps.Marker>>(new Map());
 
   // 최신 콜백을 ref에 보관하여 지도 초기화 useEffect의 의존성에서 제외
   useEffect(() => {
@@ -118,14 +117,20 @@ export const MapLayout = ({
         // 커스텀 아이콘 유지
         marker.setIcon({
           content: `
-            <div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,${
-              false ? "#22C55E 0%, #86EFAC 100%" : "#FF4343 0%, #FF7575 100%"
-            });"></div>
+            <div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#FF4343 0%, #FF7575 100%);"></div>
           `,
         });
       }
     });
   }, [selectedSpotId, selectable]);
+
+  useEffect(() => {
+    if (!initialCenter) return;
+    const map = mapRef.current;
+    if (!map) return;
+    const center = new naver.maps.LatLng(initialCenter.lat, initialCenter.lng);
+    map.setCenter(center);
+  }, [initialCenter]);
 
   return (
     <div className="w-full h-full relative">

@@ -1,53 +1,11 @@
-"use client";
+import { getContracts, getSiteByContractIds } from "@/models";
+import { SafeMapScreen } from "./components";
 
-import { BaseLayout, MapLayout } from "@/components";
-import { dummyContracts, dummyMapSpots } from "@/constants";
-import { MapSpot } from "@/models";
-import { computeSpotsCenter } from "@/utils";
-import { useRouter } from "next/navigation";
-import { useMemo } from "react";
-
-export default function SafeMap() {
-  const router = useRouter();
-
-  const contractIdMap = useMemo(
-    () =>
-      Object.fromEntries(
-        dummyContracts.map((contract) => [contract.id, contract])
-      ),
-    []
+export default async function SafeMap() {
+  const contracts = await getContracts();
+  const contractSites = await getSiteByContractIds(
+    ...contracts.map((contract) => contract.id)
   );
 
-  const spots: MapSpot[] = useMemo(
-    () =>
-      Object.entries(dummyMapSpots).map(
-        ([contractId, contractSpots], index) => {
-          const { lat, lng } = computeSpotsCenter(contractSpots);
-          return {
-            contractId,
-            lat,
-            lng,
-            id: String(index),
-            name: contractIdMap[contractId].title,
-            address: "",
-            labelNumber: contractSpots.length,
-          };
-        }
-      ),
-    [contractIdMap]
-  );
-
-  return (
-    <BaseLayout>
-      <MapLayout
-        title="안전 지도"
-        spots={spots}
-        onMarkerClick={(spot) => {
-          console.log("select spot:", spot);
-          router.push(`/contract/${spot.contractId}`);
-        }}
-        goBackHref="/"
-      />
-    </BaseLayout>
-  );
+  return <SafeMapScreen contracts={contracts} sites={contractSites} />;
 }

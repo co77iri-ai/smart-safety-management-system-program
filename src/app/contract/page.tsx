@@ -1,16 +1,25 @@
-import { BaseLayout, SubHeader } from "@/components";
-import { dummyContracts } from "@/constants";
+import {
+  BaseLayout,
+  SubHeader,
+  QrDownloadButton,
+  CopyUrlButton,
+} from "@/components";
+import { getContracts } from "@/models";
 import { Button } from "@mantine/core";
 import dayjs from "dayjs";
 import Link from "next/link";
 
-export default function ContractList() {
+export const dynamic = "force-dynamic";
+
+export default async function ContractList() {
+  const contracts = await getContracts();
+
   return (
     <BaseLayout mainContainerClassName="flex flex-col justify-start items-center h-[calc(100%-85px)]">
       <SubHeader goBackHref="/" title="사업 현황" />
       <div className="w-full overflow-x-hidden overflow-y-auto h-full max-h-full">
         <div className="flex flex-col justify-start items-stretch gap-[16px] px-[24px] pb-[64px]">
-          {dummyContracts.map((contract) => (
+          {contracts.map((contract) => (
             <div
               key={contract.id}
               className="w-full bg-white border border-[#DBDAE4] rounded-2xl p-[16px] flex flex-col justify-center items-center gap-[8px]"
@@ -40,28 +49,8 @@ export default function ContractList() {
               </div>
               <hr className="border-[#DBDAE4] w-full" />
               <div className="flex justify-start items-center gap-[8px] w-full">
-                <Button
-                  size="sm"
-                  variant="light"
-                  type="button"
-                  color="dark"
-                  radius="md"
-                  w={100}
-                  px={8}
-                >
-                  QR 코드 저장
-                </Button>
-                <Button
-                  size="sm"
-                  variant="light"
-                  type="button"
-                  color="dark"
-                  radius="md"
-                  w={100}
-                  px={8}
-                >
-                  URL 복사
-                </Button>
+                <QrDownloadButton contractId={contract.id} buttonWidth={100} />
+                <CopyUrlButton contractId={contract.id} buttonWidth={100} />
               </div>
             </div>
           ))}
