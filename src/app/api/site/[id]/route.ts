@@ -1,7 +1,8 @@
 import { getSiteById, updateSite, validatePartialSite } from "@/models";
+import type { NextRequest } from "next/server";
 
 export async function POST(
-  _req: Request,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -26,7 +27,7 @@ export async function POST(
 }
 
 export async function PUT(
-  _req: Request,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;

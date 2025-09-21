@@ -1,7 +1,8 @@
 import { updateSite } from "@/models";
+import type { NextRequest } from "next/server";
 
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
