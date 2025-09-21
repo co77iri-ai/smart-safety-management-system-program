@@ -8,6 +8,7 @@ export type MapSpot = {
   lat: number;
   lng: number;
   labelNumber?: number;
+  isSafe?: boolean;
 };
 
 export const convertToMapSpotFromSite = (site: Site): MapSpot => {

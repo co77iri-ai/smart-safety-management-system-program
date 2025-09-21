@@ -6,6 +6,7 @@ import { Button } from "@mantine/core";
 import { IconCircleCheckFilled } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 export type SiteDetailInfoBottomDrawerProps = {
   site?: Site;
@@ -13,6 +14,7 @@ export type SiteDetailInfoBottomDrawerProps = {
   onClose?: () => void;
   onClickEditChecklist?: () => void;
   onClickEditDeadline?: () => void;
+  onToggleChecklist?: () => void;
 };
 
 type CheckedMap = Record<string, Set<string>>; // name -> set of YYYYMMDD
@@ -37,6 +39,7 @@ export const SiteDetailInfoBottomDrawer = ({
   onClose,
   onClickEditChecklist,
   onClickEditDeadline,
+  onToggleChecklist,
 }: SiteDetailInfoBottomDrawerProps) => {
   const [dateKeys, setDateKeys] = useState<string[]>([]);
   const [checkedMap, setCheckedMap] = useState<CheckedMap>({});
@@ -53,14 +56,19 @@ export const SiteDetailInfoBottomDrawer = ({
       return;
     }
     const today = dayjs().format("YYYYMMDD");
-    const keys = generateDateKeys(site.startDate, today);
+    const end = dayjs(today, "YYYYMMDD").isAfter(
+      dayjs(site.endDate, "YYYYMMDD")
+    )
+      ? site.endDate
+      : today;
+    const keys = generateDateKeys(site.startDate, end);
     setDateKeys(keys);
 
     const fetching = async () => {
       const query = new URLSearchParams({
         siteId: String(site.id),
         start: site.startDate,
-        end: today,
+        end,
       }).toString();
       const result: Record<string, string[]> = await fetch(
         `/api/checklist?${query}`
@@ -68,7 +76,7 @@ export const SiteDetailInfoBottomDrawer = ({
         .then((res) => res.json())
         .catch(() => ({}));
       const map: CheckedMap = {};
-      Object.entries(result || {}).forEach(([name, dates]) => {
+      Object.entries(result[site.id] || {}).forEach(([name, dates]) => {
         map[name] = new Set(dates);
       });
       setCheckedMap(map);
@@ -76,29 +84,40 @@ export const SiteDetailInfoBottomDrawer = ({
     fetching();
   }, [site]);
 
-  const handleToggle = (name: string, dateKey: string) => async () => {
+  const handleToggle = (name: string, dateKey: string) => () => {
     if (!site) return;
-    const body = {
-      siteId: site.id,
-      contractId: site.contractId,
-      name,
-      date: dateKey,
-    };
-    const result = await fetch(`/api/checklist`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }).then((res) => res.json());
 
-    setCheckedMap((prev) => {
-      const next: CheckedMap = { ...prev };
-      const set = new Set(next[name] ? Array.from(next[name]) : []);
-      if (result?.checked) {
-        set.add(dateKey);
-      } else {
-        set.delete(dateKey);
-      }
-      next[name] = set;
-      return next;
+    const fetching = async () => {
+      const body = {
+        siteId: site.id,
+        contractId: site.contractId,
+        name,
+        date: dateKey,
+      };
+      const result = await fetch(`/api/checklist`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }).then((res) => res.json());
+
+      setCheckedMap((prev) => {
+        const next: CheckedMap = { ...prev };
+        const set = new Set(next[name] ? Array.from(next[name]) : []);
+        if (result?.checked) {
+          set.add(dateKey);
+        } else {
+          set.delete(dateKey);
+        }
+        next[name] = set;
+        return next;
+      });
+
+      onToggleChecklist?.();
+    };
+
+    toast.promise(fetching(), {
+      loading: "안전의무사항을 반영하는 중입니다...",
+      success: "안전의무사항이 반영되었습니다!",
+      error: "안전의무사항 반영을 실패했습니다.",
     });
   };
 

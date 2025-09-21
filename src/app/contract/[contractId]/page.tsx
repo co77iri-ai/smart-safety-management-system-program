@@ -1,5 +1,5 @@
 import {
-  convertToMapSpotFromSite,
+  getCheckedDatesBySiteIds,
   getContractById,
   getSitesByContractId,
 } from "@/models";
@@ -20,10 +20,19 @@ export default async function ContractDetail({
 
   const contract = await getContractById(contractId);
   const sites = await getSitesByContractId(contractId);
+  const checklist = await getCheckedDatesBySiteIds(
+    sites.map((site) => site.id)
+  );
 
   if (!contract) {
     notFound();
   }
 
-  return <ContractDetailScreen contract={contract} sites={sites} />;
+  return (
+    <ContractDetailScreen
+      contract={contract}
+      sites={sites}
+      checklist={checklist}
+    />
+  );
 }

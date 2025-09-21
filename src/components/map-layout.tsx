@@ -5,7 +5,7 @@ import { cn } from "@/utils";
 import { IconChevronLeft, IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type MapLayoutProps = {
   title: string;
@@ -24,6 +24,12 @@ export type MapLayoutProps = {
   children?: ReactNode;
   goBackHref?: string;
   onClickGoBack?: () => void;
+};
+
+const getSiteSpotMarker = (isSafe?: boolean) => {
+  return isSafe
+    ? `<div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#31c442 0%, #5eef6c 100%);"></div>`
+    : `<div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#FF4343 0%, #FF7575 100%);"></div>`;
 };
 
 export const MapLayout = ({
@@ -45,6 +51,11 @@ export const MapLayout = ({
   const onMarkerClickRef = useRef<MapLayoutProps["onMarkerClick"] | null>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<Map<number, naver.maps.Marker>>(new Map());
+
+  const spotIdMap = useMemo(
+    () => Object.fromEntries(spots?.map((spot) => [spot.id, spot]) ?? []),
+    [spots]
+  );
 
   // 최신 콜백을 ref에 보관하여 지도 초기화 useEffect의 의존성에서 제외
   useEffect(() => {
@@ -82,9 +93,7 @@ export const MapLayout = ({
           icon: {
             content:
               spot.labelNumber === undefined
-                ? `
-              <div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#FF4343 0%, #FF7575 100%);"></div>
-            `
+                ? getSiteSpotMarker(spot.isSafe)
                 : `
               <div style="transform:translate(-50%,-50%);display:flex;justify-content:center;align-items:center;font-size:24px;font-weight:bold;color:white;width:128px;height:128px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#FF434355 0%, #FF757555 100%);">
                 ${spot.labelNumber}
@@ -116,13 +125,11 @@ export const MapLayout = ({
       } else {
         // 커스텀 아이콘 유지
         marker.setIcon({
-          content: `
-            <div style="transform:translate(-50%,-50%);width:20px;height:20px;border:1px solid white;border-radius:9999px;background:linear-gradient(0deg,#FF4343 0%, #FF7575 100%);"></div>
-          `,
+          content: getSiteSpotMarker(spotIdMap[id].isSafe),
         });
       }
     });
-  }, [selectedSpotId, selectable]);
+  }, [selectedSpotId, selectable, spotIdMap]);
 
   useEffect(() => {
     if (!initialCenter) return;

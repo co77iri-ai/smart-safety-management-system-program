@@ -1,27 +1,20 @@
-import { getCheckedDatesBySite, toggleChecklistByDate } from "@/models";
+import { getCheckedDatesBySiteIds, toggleChecklistByDate } from "@/models";
 import dayjs from "dayjs";
 
 // GET /api/checklist?siteId=1&start=YYYYMMDD&end=YYYYMMDD
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const siteId = Number(searchParams.get("siteId"));
-  const start = searchParams.get("start");
-  const end = searchParams.get("end");
+  const rawSiteIds = searchParams.get("siteId");
+  const siteIds = rawSiteIds?.split(",").map(Number) ?? [];
 
-  if (Number.isNaN(siteId) || !start) {
+  if (siteIds.length === 0) {
     return new Response(JSON.stringify({ message: "Bad request" }), {
       status: 400,
       headers: { "content-type": "application/json" },
     });
   }
 
-  const startYyyymmdd = dayjs(start).format("YYYYMMDD");
-  const endYyyymmdd = dayjs(end || new Date()).format("YYYYMMDD");
-  const result = await getCheckedDatesBySite(
-    siteId,
-    startYyyymmdd,
-    endYyyymmdd
-  );
+  const result = await getCheckedDatesBySiteIds(siteIds);
 
   return new Response(JSON.stringify(result), {
     status: 200,

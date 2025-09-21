@@ -1,8 +1,12 @@
 "use client";
 
 import { BaseLayout, MapLayout } from "@/components";
-import type { Contract, Site } from "@/models";
-import { convertToMapSpotFromSite } from "@/models";
+import type { Checklist, Contract, Site } from "@/models";
+import {
+  convertToMapSpotFromSite,
+  getIsCheckedAllSite,
+  MapSpot,
+} from "@/models";
 import { computeSitesCenter, LatLng } from "@/utils";
 import { useMemo, useState } from "react";
 import { SiteDetailInfoBottomDrawer } from "./site-detail-info-bottom-drawer";
@@ -14,13 +18,16 @@ import { EditSiteBottomDrawer } from "./edit-site-bottom-drawer";
 export type ContractDetailScreenProps = {
   contract: Contract;
   sites: Site[];
+  checklist: Record<Site["id"], Checklist>;
 };
 
 export const ContractDetailScreen = ({
   contract,
   sites: _sites,
+  checklist: _checklist,
 }: ContractDetailScreenProps) => {
   const [sites, setSites] = useState(_sites);
+  const [checklist, setChecklist] = useState(_checklist);
   const [selectedSiteId, setSelectedSiteId] = useState<number>();
   const [isOpenSiteDetailDrawer, setIsOpenSiteDetailDrawer] = useState(false);
   const [isOpenAddSiteDrawer, setIsOpenAddSiteDrawer] = useState(false);
@@ -40,9 +47,14 @@ export const ContractDetailScreen = ({
     () => (selectedSiteId ? contractSiteIdMap[selectedSiteId] : undefined),
     [contractSiteIdMap, selectedSiteId]
   );
-  const siteMapSpots = useMemo(
-    () => sites.map(convertToMapSpotFromSite),
-    [sites]
+  const siteMapSpots = useMemo<MapSpot[]>(
+    () =>
+      sites.map((site) => {
+        const spot = convertToMapSpotFromSite(site);
+        spot.isSafe = getIsCheckedAllSite(site, checklist[site.id] ?? {});
+        return spot;
+      }),
+    [sites, checklist]
   );
 
   const isShowDimmer = !!selectedSiteId || isOpenAddSiteDrawer;
@@ -86,6 +98,7 @@ export const ContractDetailScreen = ({
           throw err;
         });
       await refreshSites();
+      await refreshChecklist();
     };
 
     toast.promise(fetching(), {
@@ -105,6 +118,20 @@ export const ContractDetailScreen = ({
       });
     const nextSites: Site[] = Array.isArray(result) ? result : [result];
     setSites((prev) => [...prev, ...nextSites]);
+  };
+
+  const refreshChecklist = async () => {
+    const result = await fetch(
+      `/api/checklist?siteId=${sites.map((site) => site.id).join(",")}`,
+      {
+        method: "GET",
+      }
+    )
+      .then((res) => res.json())
+      .catch((err) => {
+        throw err;
+      });
+    setChecklist(result);
   };
 
   return (
@@ -145,6 +172,9 @@ export const ContractDetailScreen = ({
           onClickEditDeadline={() => {
             setIsOpenSiteDetailDrawer(false);
             setIsOpenEditDeadlineDrawer(true);
+          }}
+          onToggleChecklist={() => {
+            refreshChecklist();
           }}
         />
         <AddSiteBottomDrawer
