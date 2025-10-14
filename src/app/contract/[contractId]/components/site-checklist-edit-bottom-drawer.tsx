@@ -1,8 +1,8 @@
 import { BottomDrawer } from "@/components";
 import type { Site } from "@/models";
-import { Button } from "@mantine/core";
+import { Button, TextInput } from "@mantine/core";
 import { IconSquarePlus, IconTrash } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 export type SiteChecklistEditBottomDrawerProps = {
@@ -25,6 +25,15 @@ export const SiteChecklistEditBottomDrawer = ({
   onClose,
 }: SiteChecklistEditBottomDrawerProps) => {
   const [checklist, setChecklist] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState("");
+
+  const defaultItems = useMemo<string[]>(() => [...checklistItems], []);
+  const customItems = useMemo(
+    () => checklist.filter((name) => !defaultItems.includes(name)),
+    [checklist, defaultItems]
+  );
+
+  const normalizeName = (value: string) => value.replace(/\s+/g, " ").trim();
 
   const handleAddItem = (name: string) => () => {
     setChecklist((state) => {
@@ -40,6 +49,21 @@ export const SiteChecklistEditBottomDrawer = ({
       return newState;
     });
     toast.success(`"${name}" 사항을 제거했어요.\n저장하기 버튼을 눌러주세요!`);
+  };
+
+  const handleAddCustom = () => {
+    const value = normalizeName(newItem);
+    if (value.length < 2 || value.length > 50) {
+      toast.error("항목은 2~50자 사이여야 해요.");
+      return;
+    }
+    if (checklist.includes(value)) {
+      toast.error("이미 추가된 항목이에요.");
+      return;
+    }
+    setChecklist((state) => [...state, value]);
+    setNewItem("");
+    toast.success(`"${value}" 사항을 추가했어요.\n저장하기 버튼을 눌러주세요!`);
   };
 
   const handleSave = () => {
@@ -81,7 +105,30 @@ export const SiteChecklistEditBottomDrawer = ({
       <h1 className="text-[18px] font-bold text-black leading-[110%] text-center w-full">
         안전의무사항 내용변경
       </h1>
-      <div className="w-full overflow-x-auto overflow-y-hidden">
+      <div className="w-full flex items-center gap-[8px]">
+        <TextInput
+          placeholder="사용자 정의 항목을 입력하세요"
+          value={newItem}
+          onChange={(e) => setNewItem(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddCustom();
+          }}
+          radius="lg"
+          className="flex-1"
+        />
+        <Button
+          size="md"
+          type="button"
+          color="indigo"
+          radius="lg"
+          className="min-h-[36px] max-h-[36px]"
+          onClick={handleAddCustom}
+          leftSection={<IconSquarePlus size={18} />}
+        >
+          추가
+        </Button>
+      </div>
+      <div className="w-full overflow-x-hidden overflow-y-auto max-h-[43dvh]">
         <table className="w-full">
           <thead>
             <tr>
@@ -93,8 +140,8 @@ export const SiteChecklistEditBottomDrawer = ({
           </thead>
           <tbody>
             {site &&
-              checklistItems.map((name) => (
-                <tr key={`opt-${name}`} className="h-[50px]">
+              defaultItems.map((name) => (
+                <tr key={`opt-${name}`} className="h-[40px]">
                   <td className="text-center border-b border-[#E4DBDB] bg-[#fcfbfb] sticky left-0 z-10">
                     {name}
                   </td>
@@ -114,6 +161,22 @@ export const SiteChecklistEditBottomDrawer = ({
                         onClick={handleAddItem(name)}
                       />
                     )}
+                  </td>
+                </tr>
+              ))}
+            {site &&
+              customItems.map((name) => (
+                <tr key={`custom-${name}`} className="h-[40px]">
+                  <td className="text-center border-b border-[#E4DBDB] bg-[#fcfbfb] sticky left-0 z-10">
+                    {name}
+                  </td>
+                  <td className="border-b border-l border-[#E4DBDB]">
+                    <IconTrash
+                      size={28}
+                      color="#FF2F2F"
+                      className="mx-auto cursor-pointer"
+                      onClick={handleRemoveItem(name)}
+                    />
                   </td>
                 </tr>
               ))}

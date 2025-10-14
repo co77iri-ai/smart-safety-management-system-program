@@ -3,7 +3,7 @@
 import { BottomDrawer } from "@/components";
 import type { Site } from "@/models";
 import { Button } from "@mantine/core";
-import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { IconCircleCheckFilled, IconCircleXFilled } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -150,7 +150,7 @@ export const SiteDetailInfoBottomDrawer = ({
           </thead>
           <tbody>
             {site?.checklist.map((name) => (
-              <tr key={name} className="h-[50px]">
+              <tr key={name} className="h-[40px]">
                 <td className="text-center border-b border-[#E4DBDB] bg-[#fcfbfb] sticky left-0 z-10">
                   {name}
                 </td>
@@ -164,7 +164,7 @@ export const SiteDetailInfoBottomDrawer = ({
                     >
                       <button
                         type="button"
-                        className="w-full h-full py-[13px] cursor-pointer flex items-center justify-center"
+                        className="w-full h-full py-[4px] cursor-pointer flex items-center justify-center"
                         onClick={handleToggle(name, dateKey)}
                         aria-label={`${name} ${displayDate} 체크 토글`}
                       >
@@ -174,7 +174,13 @@ export const SiteDetailInfoBottomDrawer = ({
                             color="#88E059"
                             className="mx-auto"
                           />
-                        ) : null}
+                        ) : (
+                          <IconCircleXFilled
+                            size={24}
+                            color="#e12c2c"
+                            className="mx-auto"
+                          />
+                        )}
                       </button>
                     </td>
                   );
