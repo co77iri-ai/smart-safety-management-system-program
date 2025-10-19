@@ -265,7 +265,7 @@ export default function RiskAssessmentHelper() {
                           </h2>
                           <div className="grid w-full grid-cols-3 gap-[8px]">
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 가능성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
@@ -273,7 +273,7 @@ export default function RiskAssessmentHelper() {
                               </span>
                             </div>
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 중대성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
@@ -281,7 +281,7 @@ export default function RiskAssessmentHelper() {
                               </span>
                             </div>
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 위험성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
@@ -298,7 +298,7 @@ export default function RiskAssessmentHelper() {
                           </h2>
                           <div className="grid w-full grid-cols-3 gap-[8px]">
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 가능성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
@@ -306,7 +306,7 @@ export default function RiskAssessmentHelper() {
                               </span>
                             </div>
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 중대성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
@@ -314,7 +314,7 @@ export default function RiskAssessmentHelper() {
                               </span>
                             </div>
                             <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none">
+                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
                                 위험성
                               </span>
                               <span className="text-[18px] sm:text-[20px] font-bold leading-none">
