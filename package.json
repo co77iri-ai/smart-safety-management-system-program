@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
+    "@google-cloud/storage": "^7.17.2",
+    "@google-cloud/vertexai": "^1.10.0",
     "@mantine/core": "^8.2.8",
     "@mantine/dates": "^8.2.8",
     "@mantine/hooks": "^8.2.8",
@@ -26,6 +28,7 @@
     "@mantine/nprogress": "^8.2.8",
     "@prisma/client": "^6.16.2",
     "@tabler/icons-react": "^3.34.1",
+    "canvas": "^3.2.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.18",
     "next": "15.5.2",
@@ -35,6 +38,7 @@
     "react-hot-toast": "^2.6.0",
     "react-qr-code": "^2.0.18",
     "tailwind-merge": "^3.3.1",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.8"
   },
   "devDependencies": {

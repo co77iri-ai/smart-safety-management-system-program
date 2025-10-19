@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       "@mantine/nprogress",
     ],
   },
+  serverExternalPackages: ["pdf-parse"],
 };
 
 export default nextConfig;

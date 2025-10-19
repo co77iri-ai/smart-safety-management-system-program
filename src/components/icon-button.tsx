@@ -34,7 +34,7 @@ export const IconButton = ({
         <Icon width={44} height={44} color={iconColor} />
       </div>
       <div className="w-full flex flex-col justify-center items-center gap-[4px]">
-        <div className="text-[18px] leading-[20px] font-bold text-[#2D2551] text-center">
+        <div className="text-[18px] leading-[20px] font-bold text-[#2D2551] text-center whitespace-pre-wrap">
           {title}
         </div>
         {description && (
