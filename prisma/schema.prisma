@@ -53,3 +53,14 @@ model Checklist {
 
   @@map("checklist")
 }
+
+model SystemConfig {
+  id         Int      @id @default(autoincrement())
+  key        String @unique
+  value      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  @@map("system_config")
+}

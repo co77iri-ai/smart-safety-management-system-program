@@ -6,17 +6,22 @@ import { useCallback, useMemo, useRef } from "react";
 
 type QrDownloadButtonProps = {
   contractId: string | number;
+  contractTitle: string;
   buttonWidth?: number;
 };
 
 export function QrDownloadButton({
   contractId,
+  contractTitle,
   buttonWidth = 100,
 }: QrDownloadButtonProps) {
   const hiddenContainerRef = useRef<HTMLDivElement | null>(null);
 
   const qrUrl = useMemo(
-    () => `${process.env.NEXT_PUBLIC_HOSTNAME}/contract/${contractId}`,
+    () =>
+      `${
+        process.env.NEXT_PUBLIC_HOSTNAME
+      }/api/qr-session/register/${contractId.toString()}`,
     [contractId]
   );
 
@@ -67,7 +72,7 @@ export function QrDownloadButton({
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `contract-${contractId}-qr.png`;
+        a.download = `${contractTitle} QR코드 이미지.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

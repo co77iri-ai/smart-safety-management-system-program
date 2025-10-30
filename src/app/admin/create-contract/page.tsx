@@ -22,7 +22,7 @@ export default function CreateContract() {
 
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  const createdContractURL = `${process.env.NEXT_PUBLIC_HOSTNAME}/contract/${createdContract?.id}`;
+  const createdContractURL = `${process.env.NEXT_PUBLIC_HOSTNAME}/api/qr-session/register/${createdContract?.id}`;
 
   const isVaildFormData =
     title.trim() !== "" &&
@@ -98,7 +98,9 @@ export default function CreateContract() {
         const pngUrl = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = pngUrl;
-        link.download = `contract-qr-${createdContract?.id ?? "unknown"}.png`;
+        link.download = `${
+          createdContract?.title ?? "unknown"
+        } QR코드 이미지.png`;
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -130,7 +132,7 @@ export default function CreateContract() {
 
   return (
     <BaseLayout mainContainerClassName="flex flex-col justify-start items-center">
-      {!createdContract && <SubHeader goBackHref="/" title="계약 생성" />}
+      {!createdContract && <SubHeader goBackHref="/admin" title="계약 생성" />}
       <div className="w-full flex-1 px-[24px] flex flex-col justify-start items-stretch gap-[8px]">
         {createdContract ? (
           <>
@@ -208,7 +210,7 @@ export default function CreateContract() {
                 radius="lg"
                 mt="xs"
                 locale="ko"
-                minDate={dayjs().toDate()}
+                // minDate={dayjs().toDate()}
                 maxDate={endDate}
                 value={startDate}
                 onChange={(date) => setStartDate(dayjs(date).toDate())}
@@ -242,7 +244,7 @@ export default function CreateContract() {
       <div className="w-full p-[24px] flex justify-between items-center gap-[10px]">
         {createdContract ? (
           <>
-            <Link href="/" className="flex-1">
+            <Link href="/admin" className="flex-1">
               <Button
                 size="xl"
                 variant="light"
@@ -254,7 +256,7 @@ export default function CreateContract() {
                 처음으로
               </Button>
             </Link>
-            <Link href="/contract" className="flex-1">
+            <Link href="/admin/contract" className="flex-1">
               <Button
                 size="xl"
                 type="button"

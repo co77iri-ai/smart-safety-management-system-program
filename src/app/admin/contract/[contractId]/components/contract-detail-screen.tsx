@@ -160,7 +160,7 @@ export const ContractDetailScreen = ({
         initialCenter={centerSpot}
         isShowAddButton
         onClickAdd={() => setIsOpenAddSiteDrawer(true)}
-        goBackHref="/contract"
+        goBackHref="/admin/contract"
       >
         <SiteDetailInfoBottomDrawer
           site={selectedSite}

@@ -69,9 +69,9 @@ export const SafeMapScreen = ({ contracts, sites }: SafeMapScreenProps) => {
         title="안전 지도"
         spots={mapSpots}
         onMarkerClick={({ contractId }) => {
-          router.push(`/contract/${contractId}`);
+          router.push(`/admin/contract/${contractId}`);
         }}
-        goBackHref="/"
+        goBackHref="/admin"
         initialCenter={mapCenterPosition}
       ></MapLayout>
     </BaseLayout>

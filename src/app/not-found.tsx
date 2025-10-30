@@ -18,11 +18,6 @@ export default function GlobalNotFound({
       <h2 className="text-[#2D2551] text-center text-[24px]">
         페이지를 찾을 수 없습니다
       </h2>
-      <Link href="/" className="mt-[100px]">
-        <Button size="xl" type="button" color="indigo" w="100%" radius="lg">
-          홈으로 돌아가기
-        </Button>
-      </Link>
     </BaseLayout>
   );
 }

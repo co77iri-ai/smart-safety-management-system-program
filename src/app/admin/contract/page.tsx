@@ -16,7 +16,7 @@ export default async function ContractList() {
 
   return (
     <BaseLayout mainContainerClassName="flex flex-col justify-start items-center h-[calc(100%-85px)]">
-      <SubHeader goBackHref="/" title="사업 현황" />
+      <SubHeader goBackHref="/admin" title="사업 현황" />
       <div className="w-full overflow-x-hidden overflow-y-auto h-full max-h-full">
         <div className="flex flex-col justify-start items-stretch gap-[16px] px-[24px] pb-[64px]">
           {contracts.map((contract) => (
@@ -34,7 +34,7 @@ export default async function ContractList() {
                     {dayjs(contract.endDate).format("YYYY.MM.DD")}
                   </h2>
                 </div>
-                <Link href={`/contract/${contract.id}`}>
+                <Link href={`/admin/contract/${contract.id}`}>
                   <Button
                     size="sm"
                     type="button"
@@ -49,7 +49,11 @@ export default async function ContractList() {
               </div>
               <hr className="border-[#DBDAE4] w-full" />
               <div className="flex justify-start items-center gap-[8px] w-full">
-                <QrDownloadButton contractId={contract.id} buttonWidth={100} />
+                <QrDownloadButton
+                  contractId={contract.id}
+                  contractTitle={contract.title}
+                  buttonWidth={100}
+                />
                 <CopyUrlButton contractId={contract.id} buttonWidth={100} />
               </div>
             </div>

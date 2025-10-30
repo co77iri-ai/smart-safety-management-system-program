@@ -14,7 +14,10 @@ export function CopyUrlButton({
   buttonWidth = 100,
 }: CopyUrlButtonProps) {
   const url = useMemo(
-    () => `${process.env.NEXT_PUBLIC_HOSTNAME}/contract/${contractId}`,
+    () =>
+      `${
+        process.env.NEXT_PUBLIC_HOSTNAME
+      }/api/qr-session/register/${contractId.toString()}`,
     [contractId]
   );
 

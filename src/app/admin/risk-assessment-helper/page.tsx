@@ -163,10 +163,10 @@ export default function RiskAssessmentHelper() {
 
   return (
     <BaseLayout mainContainerClassName="flex-col flex justify-between items-stretch">
-      <SubHeader goBackHref="/" title="위험성 평가 도우미" />
+      <SubHeader goBackHref="/admin" title="위험성 평가 도우미" />
       <div className="w-full flex-1 flex flex-col">
         {/* 스크롤 영역 */}
-        <div className="w-full flex-1 flex flex-col px-[24px] overflow-y-auto py-[70px] max-h-[calc(100dvh-252px)]">
+        <div className="w-full flex-1 flex flex-col px-[24px] overflow-y-auto max-h-[calc(100dvh-252px)]">
           {results.length === 0 && !isProcessing && (
             <div className="w-full h-full flex flex-col justify-center items-center gap-[8px]">
               <input
@@ -206,128 +206,90 @@ export default function RiskAssessmentHelper() {
           )}
 
           {results.length > 0 && (
-            <div className="w-full flex flex-col gap-[24px]">
-              {results.map((result, index) => (
-                <div
-                  key={index}
-                  className="w-full bg-white border border-[#E6E7EB] rounded-2xl p-[24px] shadow-md"
-                >
-                  <h1 className="font-bold text-[16px] mb-[16px] text-gray-700">
-                    분석 항목 #{index + 1}
-                  </h1>
-
-                  {(result.taskName ||
-                    result.hazardType ||
-                    result.hazardOutcome) && (
-                    <div className="grid grid-cols-1 gap-[8px] bg-gray-50 p-[16px] rounded-xl">
-                      {result.taskName && (
-                        <p className="text-[14px]">
-                          <span className="text-gray-600">세부작업</span>:{" "}
-                          {result.taskName}
-                        </p>
-                      )}
-                      {result.hazardType && (
-                        <p className="text-[14px]">
-                          <span className="text-gray-600">위험분류</span>:{" "}
-                          {result.hazardType}
-                        </p>
-                      )}
-                      {result.hazardOutcome && (
-                        <p className="text-[14px]">
-                          <span className="text-gray-600">위험상황결과</span>:{" "}
-                          {result.hazardOutcome}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="w-full my-[24px]" />
-
-                  {result.error ? (
-                    <div>
-                      <h1 className="font-bold text-[16px] mb-[8px] text-red-600">
-                        AI 분석 실패
-                      </h1>
-                      <p className="text-red-500 bg-red-50 p-4 rounded-lg">
-                        {result.error}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-[16px]">
-                      <h1 className="font-bold text-[16px] text-indigo-600">
-                        위험성 평가 점수 비교
-                      </h1>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
-                        {/* 기존 보고서 */}
-                        <div className="flex flex-col justify-start items-center gap-[16px] p-[16px] bg-blue-50 rounded-2xl border border-blue-200">
-                          <h2 className="text-[14px] font-bold text-blue-700">
-                            기존 보고서
-                          </h2>
-                          <div className="grid w-full grid-cols-3 gap-[8px]">
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                가능성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.prevPossibility ?? 0}
-                              </span>
-                            </div>
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                중대성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.prevSeverity ?? 0}
-                              </span>
-                            </div>
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                위험성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.prevRisk ?? 0}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* AI 분석 */}
-                        <div className="flex flex-col justify-start items-center gap-[16px] p-[16px] bg-indigo-50 rounded-2xl border border-indigo-200">
-                          <h2 className="text-[14px] font-bold text-indigo-700">
-                            AI 분석
-                          </h2>
-                          <div className="grid w-full grid-cols-3 gap-[8px]">
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                가능성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.aiSuggestion?.possibility}
-                              </span>
-                            </div>
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                중대성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.aiSuggestion?.severity}
-                              </span>
-                            </div>
-                            <div className="bg-white rounded-xl py-[12px] px-[8px] flex flex-col items-center gap-[4px]">
-                              <span className="text-gray-600 text-[11px] sm:text-[12px] leading-none whitespace-nowrap">
-                                위험성
-                              </span>
-                              <span className="text-[18px] sm:text-[20px] font-bold leading-none">
-                                {result.aiSuggestion?.risk}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="w-full">
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-[900px] w-full table-auto border-collapse bg-white rounded-2xl overflow-hidden border border-[#E6E7EB]">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-700">
+                      <th className="px-4 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[100px]">
+                        세부작업
+                      </th>
+                      <th className="px-4 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[120px]">
+                        위험분류
+                      </th>
+                      <th className="px-4 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB]">
+                        유해·위험 상황 및 결과
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        기존
+                        <br />
+                        가능성
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        기존
+                        <br />
+                        중대성
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        기존
+                        <br />
+                        위험성
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        AI제안
+                        <br />
+                        가능성
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        AI제안
+                        <br />
+                        중대성
+                      </th>
+                      <th className="px-3 py-3 text-center text-[13px] sm:text-[14px] font-bold border-b border-[#E6E7EB] w-[70px]">
+                        AI제안
+                        <br />
+                        위험성
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((result, index) => (
+                      <tr
+                        key={index}
+                        className="border-b last:border-0 border-[#E6E7EB]"
+                      >
+                        <td className="px-4 py-3 text-[14px] sm:text-[15px] text-gray-700 align-top whitespace-pre-wrap text-center">
+                          {result.taskName || ""}
+                        </td>
+                        <td className="px-4 py-3 text-[14px] sm:text-[15px] text-gray-700 align-top whitespace-pre-wrap text-center">
+                          {result.hazardType || ""}
+                        </td>
+                        <td className="px-4 py-3 text-[14px] sm:text-[15px] text-gray-700 align-top whitespace-pre-wrap">
+                          {result.hazardOutcome || ""}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-gray-900 align-top font-extrabold leading-none">
+                          {result.prevPossibility ?? 0}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-gray-900 align-top font-extrabold leading-none">
+                          {result.prevSeverity ?? 0}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-gray-900 align-top font-extrabold leading-none">
+                          {result.prevRisk ?? 0}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-indigo-700 align-top font-extrabold leading-none">
+                          {result.aiSuggestion?.possibility ?? 0}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-indigo-700 align-top font-extrabold leading-none">
+                          {result.aiSuggestion?.severity ?? 0}
+                        </td>
+                        <td className="px-3 py-3 text-center text-[22px] sm:text-[26px] text-indigo-700 align-top font-extrabold leading-none">
+                          {result.aiSuggestion?.risk ?? 0}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
