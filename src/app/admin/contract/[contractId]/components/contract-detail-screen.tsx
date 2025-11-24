@@ -127,7 +127,7 @@ export const ContractDetailScreen = ({
         throw err;
       });
     const nextSites: Site[] = Array.isArray(result) ? result : [result];
-    setSites((prev) => [...prev, ...nextSites]);
+    setSites(nextSites);
   };
 
   const refreshChecklist = async () => {
@@ -238,6 +238,10 @@ export const ContractDetailScreen = ({
             setIsOpenEditDeadlineDrawer(true);
           }}
           onToggleChecklist={() => {
+            refreshChecklist();
+          }}
+          onDelete={() => {
+            refreshSites();
             refreshChecklist();
           }}
         />

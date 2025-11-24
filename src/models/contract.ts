@@ -75,3 +75,62 @@ export const getContractById = async (
 
   return data ? convertToContractFromDBData(data) : null;
 };
+
+export const updateContract = async (
+  id: Contract["id"],
+  contract: Partial<Omit<Contract, "id">>
+): Promise<Contract | null> => {
+  const existingContract = await prisma.contract.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (!existingContract) {
+    return null;
+  }
+
+  const updatedContract = await prisma.contract.update({
+    where: {
+      id,
+    },
+    data: {
+      ...(contract.title && { name: contract.title }),
+      ...(contract.startDate && {
+        startDate: dayjs(contract.startDate).format("YYYYMMDD"),
+      }),
+      ...(contract.endDate && {
+        endDate: dayjs(contract.endDate).format("YYYYMMDD"),
+      }),
+    },
+  });
+
+  return convertToContractFromDBData(updatedContract);
+};
+
+export const deleteContract = async (
+  id: Contract["id"]
+): Promise<Contract | null> => {
+  const contract = await prisma.contract.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (!contract) {
+    return null;
+  }
+
+  const deletedContract = await prisma.contract.update({
+    where: {
+      id,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+
+  return convertToContractFromDBData(deletedContract);
+};

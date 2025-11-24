@@ -1,4 +1,4 @@
-import { getSiteById, updateSite, validatePartialSite } from "@/models";
+import { getSiteById, updateSite, deleteSite, validatePartialSite } from "@/models";
 import type { NextRequest } from "next/server";
 
 export async function POST(
@@ -52,4 +52,49 @@ export async function PUT(
     status: 201,
     headers: { "content-type": "application/json" },
   });
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const searchId = Number(id);
+    if (Number.isNaN(searchId)) {
+      return new Response(
+        JSON.stringify({
+          message: "Bad request",
+        }),
+        {
+          status: 400,
+          headers: { "content-type": "application/json" },
+        }
+      );
+    }
+
+    const deletedSite = await deleteSite(searchId);
+
+    if (!deletedSite) {
+      return new Response(
+        JSON.stringify({
+          message: "Site not found",
+        }),
+        {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        }
+      );
+    }
+
+    return new Response(JSON.stringify(deletedSite), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify(err), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
+  }
 }

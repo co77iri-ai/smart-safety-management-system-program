@@ -8,3 +8,5 @@ export * from "./qr-download-button";
 export * from "./copy-url-button";
 export * from "./progress-provider";
 export * from "./list-button";
+export * from "./delete-contract-button";
+export * from "./edit-contract-button";

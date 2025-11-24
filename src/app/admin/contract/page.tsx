@@ -3,6 +3,8 @@ import {
   SubHeader,
   QrDownloadButton,
   CopyUrlButton,
+  DeleteContractButton,
+  EditContractButton,
 } from "@/components";
 import { getContracts } from "@/models";
 import { Button } from "@mantine/core";
@@ -55,6 +57,15 @@ export default async function ContractList() {
                   buttonWidth={100}
                 />
                 <CopyUrlButton contractId={contract.id} buttonWidth={100} />
+                <EditContractButton
+                  contractId={contract.id}
+                  buttonWidth={100}
+                />
+                <DeleteContractButton
+                  contractId={contract.id}
+                  contractTitle={contract.title}
+                  buttonWidth={100}
+                />
               </div>
             </div>
           ))}

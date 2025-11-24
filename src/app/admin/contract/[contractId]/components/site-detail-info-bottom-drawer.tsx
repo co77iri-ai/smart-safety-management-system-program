@@ -15,6 +15,7 @@ export type SiteDetailInfoBottomDrawerProps = {
   onClickEditChecklist?: () => void;
   onClickEditDeadline?: () => void;
   onToggleChecklist?: () => void;
+  onDelete?: () => void;
 };
 
 type CheckedMap = Record<string, Set<string>>; // name -> set of YYYYMMDD
@@ -40,9 +41,11 @@ export const SiteDetailInfoBottomDrawer = ({
   onClickEditChecklist,
   onClickEditDeadline,
   onToggleChecklist,
+  onDelete,
 }: SiteDetailInfoBottomDrawerProps) => {
   const [dateKeys, setDateKeys] = useState<string[]>([]);
   const [checkedMap, setCheckedMap] = useState<CheckedMap>({});
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const headerLabels = useMemo(
     () => dateKeys.map((k) => dayjs(k, "YYYYMMDD").format("M/D")),
@@ -121,6 +124,45 @@ export const SiteDetailInfoBottomDrawer = ({
     });
   };
 
+  const handleDelete = async () => {
+    if (!site || isDeleting) return;
+
+    const confirmed = window.confirm(
+      `"${site.address}" 작업장을 정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    const fetching = async () => {
+      const response = await fetch(`/api/site/${site.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete site");
+      }
+
+      return response.json();
+    };
+
+    try {
+      await toast.promise(fetching(), {
+        loading: "작업장을 삭제하는 중입니다...",
+        success: "작업장이 삭제되었습니다!",
+        error: "작업장 삭제를 실패했습니다.",
+      });
+      onDelete?.();
+      onClose?.();
+    } catch (error) {
+      console.error("Error deleting site:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <BottomDrawer
       isOpen={isOpen && !!site}
@@ -190,47 +232,65 @@ export const SiteDetailInfoBottomDrawer = ({
           </tbody>
         </table>
       </div>
-      <div className="w-full flex justify-between items-center gap-[10px]">
-        <div className="flex-1">
+      <div className="w-full flex flex-col gap-[10px]">
+        <div className="w-full flex justify-between items-center gap-[10px]">
+          <div className="flex-1">
+            <Button
+              size="xl"
+              variant="light"
+              type="button"
+              color="dark"
+              w="100%"
+              radius="lg"
+              onClick={onClose}
+              disabled={isDeleting}
+            >
+              닫기
+            </Button>
+          </div>
+          <div className="flex-1">
+            <Button
+              size="xl"
+              type="button"
+              color="indigo"
+              w="100%"
+              radius="lg"
+              px="xs"
+              className="flex-1"
+              onClick={onClickEditChecklist}
+              disabled={isDeleting}
+            >
+              내용변경
+            </Button>
+          </div>
+          <div className="flex-1">
+            <Button
+              size="xl"
+              type="button"
+              color="indigo"
+              w="100%"
+              radius="lg"
+              px="xs"
+              onClick={onClickEditDeadline}
+              disabled={isDeleting}
+            >
+              기한변경
+            </Button>
+          </div>
+        </div>
+        {onDelete && (
           <Button
             size="xl"
-            variant="light"
             type="button"
-            color="dark"
+            color="red"
             w="100%"
             radius="lg"
-            onClick={onClose}
+            onClick={handleDelete}
+            disabled={isDeleting}
           >
-            닫기
+            {isDeleting ? "삭제 중..." : "작업장 삭제"}
           </Button>
-        </div>
-        <div className="flex-1">
-          <Button
-            size="xl"
-            type="button"
-            color="indigo"
-            w="100%"
-            radius="lg"
-            px="xs"
-            className="flex-1"
-            onClick={onClickEditChecklist}
-          >
-            내용변경
-          </Button>
-        </div>
-        <div className="flex-1">
-          <Button
-            size="xl"
-            type="button"
-            color="indigo"
-            w="100%"
-            radius="lg"
-            px="xs"
-            onClick={onClickEditDeadline}
-          >
-            기한변경
-          </Button>
-        </div>
+        )}
       </div>
     </BottomDrawer>
   );
