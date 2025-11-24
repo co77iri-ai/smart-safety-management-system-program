@@ -1,4 +1,9 @@
-import { getSiteById, updateSite, deleteSite, validatePartialSite } from "@/models";
+import {
+  getSiteById,
+  updateSite,
+  deleteSite,
+  validatePartialSite,
+} from "@/models";
 import type { NextRequest } from "next/server";
 
 export async function POST(

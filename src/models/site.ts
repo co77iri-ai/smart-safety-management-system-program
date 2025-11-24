@@ -155,9 +155,7 @@ export const updateSite = async (
   return convertToSiteFromDBData(data);
 };
 
-export const deleteSite = async (
-  id: Site["id"]
-): Promise<Site | null> => {
+export const deleteSite = async (id: Site["id"]): Promise<Site | null> => {
   const site = await prisma.site.findFirst({
     where: {
       id,
