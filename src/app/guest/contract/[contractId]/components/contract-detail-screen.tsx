@@ -161,7 +161,7 @@ export const ContractDetailScreen = ({
         `/api/naver/reverse-geocode?lat=${lat}&lng=${lng}`
       );
       const data = await res.json();
-      
+
       let address = "";
       if (data?.results?.[0]) {
         const result = data.results[0];
@@ -173,7 +173,9 @@ export const ContractDetailScreen = ({
           } else {
             // 지번 주소
             const region = result.region;
-            address = `${region.area1?.name || ""} ${region.area2?.name || ""} ${region.area3?.name || ""} ${region.area4?.name || ""}`.trim();
+            address = `${region.area1?.name || ""} ${
+              region.area2?.name || ""
+            } ${region.area3?.name || ""} ${region.area4?.name || ""}`.trim();
           }
         }
       }
