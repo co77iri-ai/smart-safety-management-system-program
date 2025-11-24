@@ -24,6 +24,9 @@ export type MapLayoutProps = {
   children?: ReactNode;
   goBackHref?: string;
   onClickGoBack?: () => void;
+  isSelectingLocation?: boolean;
+  onConfirmLocation?: (lat: number, lng: number) => void;
+  onCancelLocationSelection?: () => void;
 };
 
 const getSiteSpotMarker = (isSafe?: boolean) => {
@@ -46,6 +49,9 @@ export const MapLayout = ({
   children,
   goBackHref,
   onClickGoBack,
+  isSelectingLocation,
+  onConfirmLocation,
+  onCancelLocationSelection,
 }: MapLayoutProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const onMarkerClickRef = useRef<MapLayoutProps["onMarkerClick"] | null>(null);
@@ -139,6 +145,14 @@ export const MapLayout = ({
     map.setCenter(center);
   }, [initialCenter]);
 
+  const handleConfirmLocation = () => {
+    if (!mapRef.current) return;
+    const center = mapRef.current.getCenter() as naver.maps.LatLng;
+    const lat = center.lat();
+    const lng = center.lng();
+    onConfirmLocation?.(lat, lng);
+  };
+
   return (
     <div className="w-full h-full relative">
       <div className="absolute left-0 top-0 w-full px-[19px] pt-[21px] flex justify-between items-center gap-[10px] z-[1000]">
@@ -164,11 +178,11 @@ export const MapLayout = ({
           "bg-black/40 absolute top-0 left-0 w-full h-full opacity-0 duration-200 pointer-events-none select-none",
           {
             "opacity-100 pointer-events-auto select-auto":
-              isShowDimmer || isLoading,
+              (isShowDimmer && !isSelectingLocation) || isLoading,
           }
         )}
       ></button>
-      {isShowAddButton && (
+      {isShowAddButton && !isSelectingLocation && (
         <button
           type="button"
           className="w-[72px] h-[72px] bg-indigo-500 rounded-full flex justify-center items-center shadow-lg active:scale-95 duration-200 absolute bottom-[32px] right-[24px]"
@@ -176,6 +190,48 @@ export const MapLayout = ({
         >
           <IconPlus size={32} color="#ffffff" />
         </button>
+      )}
+      {isSelectingLocation && (
+        <>
+          {/* 중앙 고정 마커 */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[500] pointer-events-none">
+            <div className="relative">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="drop-shadow-lg"
+              >
+                <circle cx="24" cy="24" r="6" fill="#4F46E5" />
+                <circle cx="24" cy="24" r="4" fill="white" />
+              </svg>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2">
+                <div className="bg-indigo-500 text-white px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap">
+                  이 위치에 작업장을 추가합니다
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* 위치 선택 버튼들 */}
+          <div className="absolute bottom-[32px] left-1/2 -translate-x-1/2 z-[500] flex gap-3">
+            <button
+              type="button"
+              className="px-6 py-4 bg-white border-2 border-gray-300 rounded-full flex justify-center items-center shadow-lg active:scale-95 duration-200 font-semibold text-gray-700"
+              onClick={onCancelLocationSelection}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className="px-6 py-4 bg-indigo-500 rounded-full flex justify-center items-center shadow-lg active:scale-95 duration-200 font-semibold text-white"
+              onClick={handleConfirmLocation}
+            >
+              이 위치로 선택
+            </button>
+          </div>
+        </>
       )}
       {children}
     </div>

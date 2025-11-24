@@ -215,7 +215,7 @@ export const ContractDetailScreen = ({
         initialCenter={centerSpot}
         isShowAddButton
         onClickAdd={handleStartLocationSelection}
-        goBackHref="/admin/contract"
+        goBackHref="/guest/contract"
         isSelectingLocation={isSelectingLocation}
         onConfirmLocation={handleConfirmLocation}
         onCancelLocationSelection={handleCancelLocationSelection}

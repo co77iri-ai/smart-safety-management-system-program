@@ -98,23 +98,17 @@ export const getCheckedDatesBySiteIds = async (
 };
 
 export const getIsCheckedAllSite = (site: Site, checklist: Checklist) => {
-  const startDate = dayjs(site.startDate);
+  // 오늘 날짜와 작업장 종료일 중 빠른 날짜를 선택
   const endDate = dayjs(site.endDate);
   const nowDate = dayjs();
-  const realEndDate = endDate.diff(nowDate, "day") >= 0 ? nowDate : endDate;
-  const targetDateLength = realEndDate.diff(startDate, "day") + 1;
-  const isCheckedAll =
-    site.checklist
-      .map((checkItem) =>
-        checklist[checkItem]
-          ? [...new Set(checklist[checkItem])].filter(
-              (date) =>
-                startDate.diff(date, "day") <= 0 &&
-                realEndDate.diff(date, "day") >= 0
-            ).length === targetDateLength
-          : false
-      )
-      .filter((v) => !!v).length === site.checklist.length;
+  const targetDate = endDate.isBefore(nowDate) ? endDate : nowDate;
+  const targetDateString = targetDate.format("YYYYMMDD");
+
+  // 모든 체크리스트 항목이 targetDate에 체크되었는지 확인
+  const isCheckedAll = site.checklist.every((checkItem) => {
+    const checkedDates = checklist[checkItem] || [];
+    return checkedDates.includes(targetDateString);
+  });
 
   return isCheckedAll;
 };

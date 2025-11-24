@@ -19,6 +19,40 @@ async function isValidAccessToken(
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Guest 경로 보호: guest-contract-id 쿠키 확인
+  if (pathname.startsWith("/guest")) {
+    const guestContractId = req.cookies.get("guest-contract-id")?.value;
+
+    // 쿠키가 없거나 유효한 숫자가 아니면 404로 리다이렉트
+    if (!guestContractId) {
+      return NextResponse.rewrite(new URL("/404", req.url));
+    }
+
+    // stringified 숫자인지 확인
+    const contractId = parseInt(guestContractId, 10);
+    if (isNaN(contractId) || contractId <= 0) {
+      return NextResponse.rewrite(new URL("/404", req.url));
+    }
+
+    // DB에서 실제로 존재하는 contract인지 확인 (API Route 호출)
+    try {
+      const verifyUrl = new URL("/api/guest/verify-contract", req.url);
+      verifyUrl.searchParams.set("contractId", contractId.toString());
+
+      const response = await fetch(verifyUrl.toString());
+      const data = await response.json();
+
+      if (!data.valid) {
+        return NextResponse.rewrite(new URL("/404", req.url));
+      }
+    } catch (error) {
+      console.error("Error checking contract existence:", error);
+      return NextResponse.rewrite(new URL("/404", req.url));
+    }
+
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get("accessToken")?.value;
   const secret = process.env.ADMIN_ACCESS_TOKEN_SECRET;
 
@@ -64,5 +98,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/guest/:path*"],
 };
