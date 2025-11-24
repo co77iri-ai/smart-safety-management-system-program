@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 
 export default async function RootPage() {
   const cookieStore = await cookies();
@@ -13,7 +13,6 @@ export default async function RootPage() {
     }
   }
 
-  // 쿠키가 없으면 어드민 로그인 페이지로 리다이렉트
-  redirect("/admin/auth/login");
+  // 쿠키가 없으면 404 페이지 표시
+  notFound();
 }
-
